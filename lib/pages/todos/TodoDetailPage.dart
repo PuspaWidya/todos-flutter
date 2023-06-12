@@ -1,12 +1,15 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-import 'api/todoApi.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../api/todoApi.dart';
 
 enum menuItems { delete, save }
 
 class TodoDetailPage extends StatefulWidget {
-  dynamic todo;
-  TodoDetailPage({super.key, this.todo});
+  // dynamic todo;
+  TodoDetailPage({super.key});
 
   @override
   State<TodoDetailPage> createState() => _TodoDetailPageState();
@@ -15,11 +18,22 @@ class TodoDetailPage extends StatefulWidget {
 class _TodoDetailPageState extends State<TodoDetailPage> {
   final TextEditingController _controller = TextEditingController();
 
+  var todos;
+  var id;
+
+  void onInit() {
+    if (Get.arguments != null) {
+      todos = Get.arguments['todosTitle'];
+      id = Get.arguments['id'];
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.todo != null) {
-      _controller.text = '${widget.todo.title}';
+    onInit();
+    if (todos != null) {
+      _controller.text = todos;
     }
   }
 
@@ -30,15 +44,26 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
   }
 
   void handleDeleteAndSave(payload) async {
+    var response;
     if (payload == menuItems.delete) {
-      if (widget.todo != null) {
-        await deleteTodo(widget.todo.id);
+      if (todos != null) {
+        response = await deleteTodo(id);
       }
     } else {
-      if (widget.todo == null) {
-        saveTodo(_controller.text);
+      if (id == null) {
+        response = await saveTodo(_controller.text);
+      } else {
+        response = await updateTodo(id, _controller.text);
       }
     }
+
+    Get.snackbar(
+      'Success!',
+      'May you have a good day',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.blue,
+      colorText: Colors.white,
+    );
   }
 
   @override
@@ -55,7 +80,7 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
             onSelected: (item) async {
               setState(() {
                 handleDeleteAndSave(item);
-                Navigator.pop(context);
+                Get.back();
               });
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<menuItems>>[

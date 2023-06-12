@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:todos/api/todoApi.dart';
+
+import '../TodoDetailPage.dart';
 
 class CardTodo extends StatefulWidget {
   final todo;
@@ -33,6 +38,7 @@ class _CardTodoState extends State<CardTodo> {
               onChanged: (bool? value) {
                 setState(() {
                   widget.todo.completed = value;
+                  print(widget.todo.completed);
                   changeCompleteTodo(widget.todo.id, value);
                 });
               },
@@ -40,11 +46,10 @@ class _CardTodoState extends State<CardTodo> {
             Flexible(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/details',
-                    arguments: widget.todo,
-                  );
+                  Get.to(() => TodoDetailPage(), arguments: {
+                    'todosTitle': widget.todo.title,
+                    'id': widget.todo.id
+                  });
                 },
                 child: Text(
                   '${widget.todo.title}',

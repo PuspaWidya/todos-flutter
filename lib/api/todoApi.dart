@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:todos/model/todosModel.dart';
 import 'dart:io';
 
-const String apiEndPoint = "https://jsonplaceholder.typicode.com/todos";
-
+// const String apiEndPoint = "https://jsonplaceholder.typicode.com/todos";
+const String apiEndPoint = "https://64867bc9beba6297278ed1ac.mockapi.io/todos";
 Future<dynamic> getTodos() async {
   try {
     final http.Response response = await http
@@ -20,7 +20,7 @@ Future<dynamic> getTodos() async {
   }
 }
 
-Future<dynamic> changeComplete(int id, payload) async {
+Future<dynamic> changeComplete(String id, payload) async {
   try {
     final http.Response response = await http.put(
       Uri.parse('$apiEndPoint/$id'),
@@ -37,7 +37,8 @@ Future<dynamic> changeComplete(int id, payload) async {
   }
 }
 
-Future<dynamic> deleteTodo(int id) async {
+Future<dynamic> deleteTodo(String id) async {
+  print(id);
   try {
     final http.Response response = await http.delete(
       Uri.parse('${apiEndPoint}/${id}'),
@@ -49,7 +50,10 @@ Future<dynamic> deleteTodo(int id) async {
     if (response.statusCode == 200) {
       // return TodosModel.fromJson(jsonDecode(response.body));
 
-      return {'statusCode': response.statusCode, 'message': 'success'};
+      return {
+        'statusCode': response.statusCode,
+        'message': 'success delete Todo'
+      };
     } else {
       throw Exception('Failed to delete todo.');
     }
@@ -72,6 +76,30 @@ Future<dynamic> saveTodo(payload) async {
     if (response.statusCode == 201) {
       // return TodosModel.fromJson(jsonDecode(response.body));
       return {'statusCode': response.statusCode, 'message': 'success'};
+    } else {
+      throw Exception('Failed to save todo.');
+    }
+  } on SocketException {
+    print('No Internet connection ');
+  }
+}
+
+Future<dynamic> updateTodo(id, payload) async {
+  try {
+    final http.Response response = await http.put(
+      Uri.parse('${apiEndPoint}/${id}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'title': payload}),
+    );
+
+    if (response.statusCode == 200) {
+      // return TodosModel.fromJson(jsonDecode(response.body));
+      return {
+        'statusCode': response.statusCode,
+        'message': 'success update Todo'
+      };
     } else {
       throw Exception('Failed to save todo.');
     }

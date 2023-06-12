@@ -1,15 +1,16 @@
 class TodosModel {
-  final int id;
+  final String id;
   final int userId;
   final String title;
-  bool completed;
+  final bool completed;
+  final String description;
 
-  TodosModel({
-    required this.id,
-    required this.userId,
-    required this.title,
-    required this.completed,
-  });
+  TodosModel(
+      {required this.id,
+      required this.userId,
+      required this.title,
+      required this.completed,
+      required this.description});
 
   factory TodosModel.fromJson(Map<String, dynamic> todo) {
     return TodosModel(
@@ -17,6 +18,7 @@ class TodosModel {
       userId: todo['userId'],
       title: todo['title'],
       completed: todo['completed'],
+      description: todo['description'],
     );
   }
 }

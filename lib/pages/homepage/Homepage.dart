@@ -1,6 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:todos/pages/todos/TodoDetailPage.dart';
 import 'package:todos/pages/todos/widget/CardTodo.dart';
 import '../../api/todoApi.dart';
+import '../../main_controller/main_controller.dart';
+import 'controller/home_controller.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -10,19 +15,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final themeCont = Get.find<ThemeController>();
+
+  final DataController controller = Get.put(DataController());
+
   dynamic todoResponse;
 
   fetchTodos() async {
-    var response = await getTodos();
-    setState(() {
-      todoResponse = response;
-    });
+    controller.getTodosApi();
   }
 
   @override
   void initState() {
-    super.initState();
     fetchTodos();
+    super.initState();
   }
 
   @override
@@ -41,10 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.circle_notifications_outlined),
+            icon: const Icon(Icons.invert_colors_on_outlined),
             tooltip: 'Show the alert',
             color: Colors.blue.shade400,
-            onPressed: (() => null),
+            onPressed: (() => themeCont.changeTheme()),
           )
         ],
         leading: IconButton(
@@ -54,17 +60,27 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: (() => null),
         ),
       ),
-      body: ListView.builder(
-        itemCount: todoResponse == null ? 0 : todoResponse.length,
-        itemBuilder: ((context, index) {
-          return GestureDetector(
-            child: CardTodo(todo: todoResponse[index]),
-          );
-        }),
-      ),
+      body: Obx(() => Container(
+            child: controller.todos_model.isEmpty
+                ? Center(
+                    child: Text('There is no todos available'),
+                  )
+                : ListView.builder(
+                    itemCount: controller.todos_model.value.isNotEmpty
+                        ? controller.todos_model.value.length
+                        : 0,
+                    itemBuilder: ((context, index) {
+                      final itemTodo = controller.todos_model.value[index];
+                      return GestureDetector(
+                        child: CardTodo(todo: itemTodo),
+                      );
+                    }),
+                  ),
+          )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/details');
+          Get.to(() => TodoDetailPage());
+          // Get.toNamed('/details');
         },
         child: const Icon(Icons.add),
       ),

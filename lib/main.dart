@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:todos/main_controller/main_controller.dart';
 import 'package:todos/router/router.dart';
 import 'pages/homepage/Homepage.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  final themeCont = Get.put(ThemeController());
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
-      initialRoute: '/',
-      onGenerateRoute: generateRoute,
+    return Obx(
+      (() => GetMaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: themeCont.themeValue.value
+                ? ThemeData.dark()
+                : ThemeData(
+                    primarySwatch: Colors.blue,
+                  ),
+            getPages: appRoutes(),
+          )),
     );
   }
 }
