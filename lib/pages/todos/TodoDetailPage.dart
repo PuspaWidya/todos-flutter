@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:todos/model/todosModel.dart';
+import 'dart:math';
 import '../../api/todoApi.dart';
+import '../homepage/controller/home_controller.dart';
 
 enum menuItems { delete, save }
 
@@ -16,7 +18,11 @@ class TodoDetailPage extends StatefulWidget {
 }
 
 class _TodoDetailPageState extends State<TodoDetailPage> {
-  final TextEditingController _controller = TextEditingController();
+  TextEditingController controllerText = TextEditingController();
+
+  final DataController controller = Get.put(DataController());
+
+  Random random = new Random();
 
   var todos;
   var id;
@@ -33,13 +39,13 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
     super.initState();
     onInit();
     if (todos != null) {
-      _controller.text = todos;
+      controllerText.text = todos;
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controllerText.dispose();
     super.dispose();
   }
 
@@ -47,23 +53,30 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
     var response;
     if (payload == menuItems.delete) {
       if (todos != null) {
-        response = await deleteTodo(id);
+        // response = await deleteTodo(id);
+        response = await controller.deleteTodo(id);
       }
     } else {
       if (id == null) {
-        response = await saveTodo(_controller.text);
+        // response = await saveTodo(controllerText.text);
+        response = await controller.createTodo(controllerText.text);
       } else {
-        response = await updateTodo(id, _controller.text);
+        // response = await updateTodo(id, _controller.text);
+        response = await controller.updateTodo(id, controllerText.text);
       }
     }
 
-    Get.snackbar(
-      'Success!',
-      'May you have a good day',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.blue,
-      colorText: Colors.white,
-    );
+    if (response == true) {
+      Get.back();
+
+      Get.snackbar(
+        'Success!',
+        'May you have a good day',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.blue,
+        colorText: Colors.white,
+      );
+    }
   }
 
   @override
@@ -80,7 +93,6 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
             onSelected: (item) async {
               setState(() {
                 handleDeleteAndSave(item);
-                Get.back();
               });
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<menuItems>>[
@@ -99,7 +111,7 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: TextField(
-          controller: _controller,
+          controller: controllerText,
           maxLines: null,
           keyboardType: TextInputType.multiline,
           expands: true,

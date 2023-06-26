@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:todos/api/todoApi.dart';
 
+import '../../homepage/controller/home_controller.dart';
 import '../TodoDetailPage.dart';
 
 class CardTodo extends StatefulWidget {
@@ -14,11 +15,15 @@ class CardTodo extends StatefulWidget {
   State<CardTodo> createState() => _CardTodoState();
 }
 
-changeCompleteTodo(id, value) {
-  changeComplete(id, {'complete': value});
-}
-
 class _CardTodoState extends State<CardTodo> {
+  final DataController controller = Get.put(DataController());
+
+  changeCompleteTodo(id, value) async {
+    await controller.updateIsFinished(id, {'completed': value});
+  }
+
+  var completed;
+
   @override
   void initState() {
     super.initState();
@@ -35,10 +40,9 @@ class _CardTodoState extends State<CardTodo> {
             Checkbox(
               checkColor: Colors.white,
               value: widget.todo.completed,
+              // value: completed,
               onChanged: (bool? value) {
                 setState(() {
-                  widget.todo.completed = value;
-                  print(widget.todo.completed);
                   changeCompleteTodo(widget.todo.id, value);
                 });
               },
@@ -48,7 +52,7 @@ class _CardTodoState extends State<CardTodo> {
                 onTap: () {
                   Get.to(() => TodoDetailPage(), arguments: {
                     'todosTitle': widget.todo.title,
-                    'id': widget.todo.id
+                    'id': widget.todo.id,
                   });
                 },
                 child: Text(

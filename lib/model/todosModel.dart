@@ -1,6 +1,6 @@
 class TodosModel {
   final String id;
-  final int userId;
+  final dynamic userId;
   final String title;
   final bool completed;
   final String description;
